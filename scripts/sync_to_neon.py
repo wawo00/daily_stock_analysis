@@ -46,6 +46,18 @@ def sync_database():
         sys.exit(1)
 
     # 1. 在 Neon (PostgreSQL) 上创建所有缺少的表结构
+    # PostgreSQL 标识符（索引名、约束名）最大允许 63 个字符。
+    # SQLite 无此限制，因此 storage.py 中存在超长的索引名。
+    # 遵循 OCP 原则：不修改 storage.py，而是在同步脚本内对超长名称做截断处理。
+    PG_MAX_IDENT_LEN = 63
+    print("🔄 正在检查并修正超长索引/约束名称（PG 63字符限制）...")
+    for table in Base.metadata.sorted_tables:
+        for idx in list(table.indexes):
+            if len(idx.name) > PG_MAX_IDENT_LEN:
+                truncated = idx.name[:PG_MAX_IDENT_LEN]
+                print(f"  ✂️ 截断索引名: {idx.name!r} → {truncated!r}")
+                idx.name = truncated
+
     print("🔄 正在初始化目标数据库表结构...")
     try:
         Base.metadata.create_all(pg_engine)
@@ -53,6 +65,7 @@ def sync_database():
     except Exception as e:
         print(f"❌ 错误: 初始化 Neon 数据库表结构失败。{e}")
         sys.exit(1)
+
 
     # 2. 依次同步每个表的数据，使用 sorted_tables 遵循外键依赖顺序
     print("🔄 开始同步表数据...")

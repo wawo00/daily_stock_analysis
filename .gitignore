@@ -83,6 +83,9 @@ verify_*.py
 !.claude/skills/
 !.claude/skills/**
 
+# ignore local agent configurations
+.agents/
+
 # ignore static files
 static/
 /apps/dsa-desktop/dist/

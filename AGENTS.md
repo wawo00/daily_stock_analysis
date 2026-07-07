@@ -49,6 +49,7 @@
 - 仓库协作 skill 存放在 `.claude/skills/`，分析产物存放在 `.claude/reviews/`；前者可以入库，后者默认视为本地产物。
 - 根目录 `SKILL.md` 与 `docs/openclaw-skill-integration.md` 属于产品或外部集成说明，不是仓库协作规则真源。
 - 若未来新增 `.agents/skills/` 或其他 agent 专用目录，必须先明确单一真源，再通过脚本或镜像同步；禁止手工长期维护多份同义内容。
+- 每次 AI 回答完成后（即在准备结束当前 turn 并向用户输出最终回答前），必须自动执行 `session-memory-save` skill，将本次对话的最新一轮问答总结记录或追加到项目根目录下的 `SessionMemory` 文件夹中。具体逻辑和格式规范详见 `.claude/skills/session-memory-save/SKILL.md`。
 - 修改 AI 协作治理资产时，执行：
 
 ```bash
